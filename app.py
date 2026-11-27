@@ -18,8 +18,82 @@ import data
 from style import (BAD, GOOD, badge, badge_html_col, color_for, empty_state, fmt_dt,
                     inject_css, render_pills)
 
-st.set_page_config(page_title="Qlik Dashboard Monitor", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Qlik Dashboard Monitor", page_icon="📊", layout="wide",
+                   initial_sidebar_state="collapsed")
 inject_css()
+
+# ---- business look & feel (overrides the default theme) ---------------------
+st.markdown("""
+<style>
+:root { --navy:#0B2545; --accent:#1F5FA8; --ink:#1F2933; --muted:#667085;
+        --line:#E4E7EC; --bg-soft:#F7F8FA; }
+html, body, [class*="css"], .stApp { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+.stApp { background:#FFFFFF; color:var(--ink); }
+/* keep the page heading clear of Streamlit's top toolbar */
+.block-container { padding-top: 4.2rem !important; max-width: 1500px; }
+header[data-testid="stHeader"] { background: rgba(255,255,255,.92); border-bottom:1px solid var(--line); }
+.bi-title { font-size:2.6rem !important; font-weight:800 !important; color:var(--navy) !important;
+            margin:0 0 .25rem 0 !important; line-height:1.2 !important; letter-spacing:-.3px;
+            -webkit-text-fill-color:var(--navy) !important; background:none !important; }
+.bi-sub   { font-size:1.05rem; color:var(--muted); margin:0 0 1.1rem 0; padding-bottom:.9rem;
+            border-bottom:1px solid var(--line); }
+/* headings */
+h1,h2,h3 { color:var(--navy) !important; font-weight:650 !important; letter-spacing:.1px; }
+h3 { font-size:1.35rem !important; font-weight:700 !important; }
+/* tabs: one distinct colour per section (ARIA selectors, work across Streamlit versions) */
+html body .stApp div[data-testid="stTabs"] [role="tablist"] { gap:8px !important; padding:0 !important; flex-wrap:nowrap !important; overflow-x:auto;
+    border-bottom:2px solid #98A2B3 !important; background:transparent !important; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"] {
+    --tc:#1F4E79;
+    background:#FFFFFF !important; height:auto !important; min-height:3.1rem; margin:0 !important;
+    padding:.75rem 1.05rem !important; cursor:pointer; white-space:nowrap !important; flex:0 0 auto !important;
+    border:1px solid #D0D5DD !important; border-top:5px solid var(--tc) !important; border-bottom:none !important;
+    border-radius:10px 10px 0 0 !important; box-shadow:0 2px 4px rgba(16,24,40,.08) !important; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:nth-child(1) { --tc:#1F4E79; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:nth-child(2) { --tc:#0F766E; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:nth-child(3) { --tc:#B42318; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:nth-child(4) { --tc:#6941C6; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:nth-child(5) { --tc:#175CD3; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:nth-child(6) { --tc:#15803D; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:nth-child(7) { --tc:#C2410C; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:nth-child(8) { --tc:#475467; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"] p, html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"] span, html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"] div {
+    color:var(--tc) !important; font-weight:700 !important; font-size:.95rem !important; white-space:nowrap !important; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"]:hover { background:#F2F4F7 !important; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"][aria-selected="true"] {
+    background:var(--tc) !important; border-color:var(--tc) !important;
+    box-shadow:0 -3px 8px rgba(16,24,40,.25) !important; }
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"][aria-selected="true"] p, html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"][aria-selected="true"] span,
+html body .stApp div[data-testid="stTabs"] [role="tablist"] [role="tab"][aria-selected="true"] div { color:#FFFFFF !important; }
+[data-baseweb="tab-highlight"], [data-baseweb="tab-border"] { display:none !important; }
+div[data-testid="stTabs"] [role="tabpanel"] { padding-top:1.4rem; }
+div[data-testid="stTabs"] { margin-top:.4rem; }
+/* KPI cards */
+div[data-testid="stMetric"] { background:#FFFFFF; border:1px solid var(--line); border-radius:8px;
+    padding:.8rem 1rem; box-shadow:0 1px 2px rgba(16,24,40,.05); }
+div[data-testid="stMetricLabel"] p { color:var(--muted); font-size:.82rem; font-weight:600;
+    text-transform:uppercase; letter-spacing:.4px; }
+div[data-testid="stMetricValue"] { color:var(--navy); font-weight:700; }
+/* section cards / containers */
+.section-card, div[data-testid="stVerticalBlockBorderWrapper"] { border-radius:8px; border-color:var(--line) !important; }
+/* tables */
+div[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:8px; }
+.styled-table { width:100%; border-collapse:collapse; font-size:.92rem; }
+.styled-table th { background:var(--bg-soft); color:var(--navy); text-align:left; padding:.55rem .8rem;
+                   border-bottom:2px solid var(--line); }
+.styled-table td { padding:.5rem .8rem; border-bottom:1px solid var(--line); }
+/* sidebar removed: use the full width */
+section[data-testid="stSidebar"], div[data-testid="stSidebarCollapsedControl"],
+div[data-testid="collapsedControl"] { display:none !important; }
+.status-bar { display:flex; flex-wrap:wrap; gap:.4rem 2rem; background:#F2F6FB; border:1px solid #D6E2F2;
+    border-radius:8px; padding:.55rem 1rem; margin:0 0 1rem 0; font-size:.92rem; color:var(--ink); }
+.status-bar b { color:var(--navy); margin-right:.35rem; }
+.st-ok { color:#1B7F4B; font-weight:700; } .st-bad { color:#B42318; font-weight:700; }
+.tabs-hint { font-size:.8rem; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
+    color:#1F5FA8; margin:.2rem 0 .15rem 0; }
+.stButton>button, .stDownloadButton>button { border-radius:6px; border:1px solid var(--line); font-weight:600; }
+</style>
+""", unsafe_allow_html=True)
 px.defaults.template = "plotly_white"
 
 # ============================================================ auto-refresh
@@ -49,8 +123,8 @@ st.session_state.setdefault("autorefresh", True)
 if st.session_state["autorefresh"]:
     _watch_for_new_data()
 
-st.markdown('<p class="app-title">📊 Qlik Dashboard Monitor</p>', unsafe_allow_html=True)
-st.markdown('<p class="app-sub">Live status across dashboards, alerts, shift timings and QMC jobs</p>',
+st.markdown('<div class="bi-title">📊 Qlik Dashboard Monitor</div>', unsafe_allow_html=True)
+st.markdown('<p class="bi-sub">Live status across dashboards, alerts, shift timings and QMC jobs</p>',
             unsafe_allow_html=True)
 
 if d is None:
@@ -58,49 +132,35 @@ if d is None:
                 f"it will appear here automatically once the pipeline finishes its first run.")
     st.stop()
 
-# ---- sidebar --------------------------------------------------------------
-with st.sidebar:
-    st.header("⚙️ Status")
-    if info["sample"]:
-        st.warning("Showing **sample data** — your pipeline hasn't written "
-                    f"`{config.DATA_FILE.name}` yet.", icon="⚠️")
+# ---- status strip (replaces the sidebar so the full page width is used) --------
+if info["sample"]:
+    st.warning("Showing **sample data** — your pipeline hasn't written "
+               f"`{config.DATA_FILE.name}` yet.", icon="⚠️")
 
-    freshest = max(info["as_of"], info["saved_at"])
-    age_hours = (data.now_ist() - freshest).total_seconds() / 3600
-    st.metric("Data as of", info["as_of"].strftime("%d %b, %I:%M %p"))
-    st.caption(f"💾 Workbook file saved: {info['saved_at'].strftime('%d %b, %I:%M %p')}")
-    if (info["saved_at"] - info["as_of"]).total_seconds() > 1800:
-        st.warning("The workbook was saved more recently than its Summary "
-                   "'Generated' time — the pipeline saved the file but did not "
-                   "refresh the Summary sheet.", icon="⚠️")
-    if age_hours > config.STALE_AFTER_HOURS:
-        st.error(f"⏱️ {age_hours:.1f}h old — older than expected for the scheduled runs. "
-                  "Check the scheduler.", icon="🚨")
-    else:
-        st.caption(f"🟢 Fresh — {age_hours:.1f}h ago")
-    st.caption(f"📄 Reading: `{info['path']}`")
-    st.caption(f"⏭️ Next scheduled run: **{data.next_run().strftime('%d %b, %I:%M %p')}**")
+freshest = max(info["as_of"], info["saved_at"])
+age_hours = (data.now_ist() - freshest).total_seconds() / 3600
+_stale_flag = age_hours > config.STALE_AFTER_HOURS
+_fresh_txt = (f'<span class="st-bad">Data is {age_hours:.1f}h old</span>' if _stale_flag
+              else f'<span class="st-ok">Data is fresh ({age_hours:.1f}h ago)</span>')
+st.markdown(
+    '<div class="status-bar">'
+    f'<span><b>Data as of</b> {info["as_of"].strftime("%d %b, %I:%M %p")}</span>'
+    f'<span><b>Workbook saved</b> {info["saved_at"].strftime("%d %b, %I:%M %p")}</span>'
+    f'<span><b>Next scheduled run</b> {data.next_run().strftime("%d %b, %I:%M %p")}</span>'
+    f'<span>{_fresh_txt}</span></div>', unsafe_allow_html=True)
 
-    run_status = data.read_run_status()
-    if run_status:
-        icon = "✅" if run_status.get("ok") else "❌"
-        st.caption(f"{icon} Last pipeline run: {run_status.get('finished_at', '—')} "
-                    f"({run_status.get('duration_sec', '?')}s)")
-        if not run_status.get("ok"):
-            with st.expander("Last run error"):
-                st.code(run_status.get("error", "unknown error"))
-
-    st.toggle(f"Auto-refresh (every {config.REFRESH_SECONDS // 60} min)", key="autorefresh")
-    if st.button("🔄 Reload now", width='stretch'):
-        st.cache_data.clear()
-        st.rerun()
-
-    st.divider()
-    st.header("🗺️ Navigate")
-    st.caption("Overview · Dashboard Status · Alerts · Shift Timings · "
-               "Job Monitor · Self Service Jobs · Priority Jobs · Jobs Corresponding Developers")
-    if d["missing"]:
-        st.caption(f"Sheets not found in workbook: {', '.join(d['missing'])}")
+if (info["saved_at"] - info["as_of"]).total_seconds() > 1800:
+    st.warning("The workbook was saved more recently than its Summary 'Generated' time — "
+               "the pipeline saved the file but did not refresh the Summary sheet.", icon="⚠️")
+if _stale_flag:
+    st.error(f"Data is {age_hours:.1f}h old — older than expected for the scheduled runs. "
+             "Check the scheduler.", icon="🚨")
+run_status = data.read_run_status()
+if run_status and not run_status.get("ok"):
+    with st.expander(f"Last pipeline run failed ({run_status.get('finished_at', '—')})"):
+        st.code(run_status.get("error", "unknown error"))
+if d["missing"]:
+    st.caption(f"Sheets not found in workbook: {', '.join(d['missing'])}")
 
 # ============================================================ shared helpers
 def _color_status(frame: pd.DataFrame, col: str, colors: dict | None = None):
@@ -118,7 +178,7 @@ def render_job_changes():
     jc = data.get_job_changes()
     ch = jc["changes"]
     with st.container(border=True):
-        st.subheader("🆕 QMC job changes")
+        st.subheader("QMC Job Changes")
         if pd.isna(jc["last_checked"]):
             st.info("Tracking has not started yet. It starts with the next pipeline run - or run "
                     "`python job_changes.py` once to take the starting snapshot right now.", icon="🕒")
@@ -131,7 +191,7 @@ def render_job_changes():
 
         f1, f2 = st.columns([3, 1])
         window = f1.radio("Show changes from", ["Last 24 hours", "Last 7 days", "Last 30 days", "All"],
-                          index=1, horizontal=True, key="jc_window")
+                          index=0, horizontal=True, key="jc_window")
         only_action = f2.checkbox("Only needing action", key="jc_only_action",
                                   help="Added jobs that no dashboard lists yet, and deleted jobs a dashboard still lists.")
         days = {"Last 24 hours": 1, "Last 7 days": 7, "Last 30 days": 30}.get(window)
@@ -177,14 +237,15 @@ def render_job_changes():
                          column_config={"Task": st.column_config.TextColumn(width="large"),
                                         "Dashboard check": st.column_config.TextColumn(width="large"),
                                         "Full QMC name": st.column_config.TextColumn(width="large")})
-        st.download_button("⬇ Download full change log (CSV)", ch.to_csv(index=False).encode("utf-8"),
+        st.download_button("Download full change log (CSV)", ch.to_csv(index=False).encode("utf-8"),
                            "qmc_job_changes.csv", "text/csv")
 
 
 # ============================================================ tabs
+st.markdown('<div class="tabs-hint">Select a section ▼</div>', unsafe_allow_html=True)
 tab_overview, tab_status, tab_alerts, tab_shift, tab_jobs, tab_self, tab_priority, tab_devs = st.tabs(
-    ["🏠 Overview", "🖥️ Dashboard Status", "🚨 Alerts", "🕒 Shift Timings",
-     "⚙️ Job Monitor", "🧑‍💼 Self Service Jobs", "⭐ Priority BI Jobs", "👨‍💻 Jobs Corresponding Developers"]
+    ["Overview", "Dashboard Status", "Alerts", "Shift Timings",
+     "Job Monitor", "Self Service Jobs", "Priority BI Jobs", "Jobs Corresponding Developers"]
 )
 
 # ------------------------------------------------------------------ Overview
@@ -208,6 +269,17 @@ with tab_overview:
     c5.metric("Stale (2+ days)", kv.get("Genuinely Stale (2+ days old)", "—"))
     c6.metric("Total Jobs", kv.get("Total Jobs", len(d["jobs"])))
     c7.metric("Open Alerts", len(d["alerts"]))
+
+    with st.container(border=True):
+        st.subheader("Needs Attention")
+        st.markdown(f"**Failed dashboards ({len(s['failed'])})**")
+        if s["failed"].empty:
+            st.success("No failed dashboards")
+        else:
+            st.dataframe(s["failed"], width="stretch", hide_index=True,
+                         height=44 + 36 * len(s["failed"]))
+        for note in s["notes"]:
+            st.info(note, icon="📝")
 
     render_job_changes()
 
@@ -243,24 +315,14 @@ with tab_overview:
             st.plotly_chart(fig, width='stretch')
         st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.subheader("⚠️ Needs attention")
-    a1, a2 = st.columns(2)
-    with a1:
-        st.caption("Failed dashboards")
-        if s["failed"].empty:
-            st.success("No failed dashboards 🎉")
-        else:
-            st.dataframe(s["failed"], width='stretch', hide_index=True)
-    with a2:
-        st.caption(f"Stale dashboards ({len(s['stale'])})")
+    # Stale dashboards: last section of the Overview; first 5 rows visible, scroll for the rest
+    with st.container(border=True):
+        st.subheader(f"Stale Dashboards ({len(s['stale'])})")
         if s["stale"].empty:
-            st.success("Nothing stale 🎉")
+            st.success("No stale dashboards")
         else:
-            st.dataframe(s["stale"], width='stretch', hide_index=True, height=240)
-    for note in s["notes"]:
-        st.info(note, icon="📝")
-    st.markdown("</div>", unsafe_allow_html=True)
+            st.dataframe(s["stale"], width="stretch", hide_index=True,
+                         height=40 + 35 * min(5, len(s["stale"])))
 
 # ------------------------------------------------------------------ Dashboard Status
 @st.dialog("QVW jobs behind this dashboard", width="large")
@@ -331,7 +393,7 @@ with tab_status:
         else:
             st.session_state["_qvw_popup_for"] = None
 
-        with st.expander("🔍 Inspect QVW jobs behind a dashboard"):
+        with st.expander("Inspect QVW jobs behind a dashboard"):
             pick = st.selectbox("Dashboard", sorted(df["Dashboard"].unique()))
             qvw = d["qvw"][d["qvw"]["Dashboard"] == pick].copy()
             if qvw.empty:
@@ -345,7 +407,7 @@ with tab_status:
 with tab_alerts:
     al = d["alerts"]
     if al.empty:
-        st.success("No active alerts 🎉", icon="✅")
+        st.success("No active alerts", icon="✅")
     else:
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Total Alerts", len(al))
@@ -379,7 +441,7 @@ with tab_shift:
     else:
         shifts = [s for s in ["Morning", "Afternoon", "Night"] if s in sh["Shift"].unique()] \
             or sorted(sh["Shift"].unique())
-        shift_tabs = st.tabs([f"🕘 {s}" for s in shifts])
+        shift_tabs = st.tabs([f"{s}" for s in shifts])
         for name, stab in zip(shifts, shift_tabs):
             with stab:
                 sub = sh[sh["Shift"] == name]
@@ -440,7 +502,8 @@ SELF_SERVICE_FOLDERS = [
     ("Rocky Eng Folder", "rockys eng folder"),
     ("Product Performance", "product performance"),
     ("Kenneth Folder", "kenneths_folder"),
-    ("Brazil DT Folder", "brazil dt folder")
+    ("Brazil DT Folder", "brazil dt folder"),
+    ("Corp_Eng_Quality_Folder", "corp_eng_quality_folder"),
 ]
 
 def _squash(x) -> str:
@@ -466,13 +529,13 @@ with tab_self:
         ss["Self Service Folder"] = row_text.map(_ss_folder)
         ss = ss[ss["Self Service Folder"].notna()]
 
-        # c1, c2, c3, c4 = st.columns(4)
-        # c1.metric("Self service jobs", len(ss))
-        # c2.metric("Folders", ss["Self Service Folder"].nunique())
-        # c3.metric("Share of all jobs", f"{len(ss) / len(all_jobs):.1%}")
-        # c4.metric("Distribution groups", (ss["Distribution Group"] != "—").sum())
-        # st.caption("Jobs are assigned to a folder by the folder name found anywhere in the job row "
-        #            "(a job matching more than one folder is counted once, under the first match).")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Self service jobs", len(ss))
+        c2.metric("Folders", ss["Self Service Folder"].nunique())
+        c3.metric("Share of all jobs", f"{len(ss) / len(all_jobs):.1%}")
+        c4.metric("Distribution groups", (ss["Distribution Group"] != "—").sum())
+        st.caption("Jobs are assigned to a folder by the folder name found anywhere in the job row "
+                   "(a job matching more than one folder is counted once, under the first match).")
 
         # ---- Summary table: one row per self service folder
         st.subheader("Summary")
@@ -485,15 +548,15 @@ with tab_self:
         st.write(summary.to_html(index=False, classes="styled-table"),
                  unsafe_allow_html=True)
 
-        # with st.expander("🔍 Matching diagnostics (which column the keyword was found in)"):
-        #     diag = []
-        #     for name, kw in SELF_SERVICE_FOLDERS:
-        #         row = {"Folder": name, "Keyword": kw}
-        #         for c in text_cols:
-        #             row[c] = int(all_jobs[c].astype(str).map(lambda v: _squash(kw) in _squash(v)).sum())
-        #         diag.append(row)
-        #     st.dataframe(pd.DataFrame(diag), hide_index=True, width='stretch')
-        #     st.caption("Columns searched: " + ", ".join(text_cols))
+        with st.expander("Matching diagnostics"):
+            diag = []
+            for name, kw in SELF_SERVICE_FOLDERS:
+                row = {"Folder": name, "Keyword": kw}
+                for c in text_cols:
+                    row[c] = int(all_jobs[c].astype(str).map(lambda v: _squash(kw) in _squash(v)).sum())
+                diag.append(row)
+            st.dataframe(pd.DataFrame(diag), hide_index=True, width='stretch')
+            st.caption("Columns searched: " + ", ".join(text_cols))
 
         if ss.empty:
             empty_state("No self service jobs found.")
@@ -616,7 +679,7 @@ with tab_devs:
                     st.warning(f"No developer matching “{q}”.")
                 else:
                     for name, grp_df in hit.groupby("Developer", sort=True):
-                        with st.expander(f"👤 {name} — {grp_df['Job'].nunique()} job(s)", expanded=hit["Developer"].nunique() <= 3):
+                        with st.expander(f"{name} — {grp_df['Job'].nunique()} job(s)", expanded=hit["Developer"].nunique() <= 3):
                             show = grp_df[job_cols + ["Last Run (ET)"]].copy()
                             show["Last Run (ET)"] = show["Last Run (ET)"].map(fmt_dt)
                             st.dataframe(show, width='stretch', hide_index=True,
